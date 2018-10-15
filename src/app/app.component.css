@@ -5,3 +5,9 @@
 button {
   margin: 10px 10px 10px 0px;
 }
+
+.footer {
+  font-size: 0.8em;
+  margin-top: 5px;
+  text-align: right;
+}

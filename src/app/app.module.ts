@@ -17,7 +17,7 @@ import { MaterialModule } from './material.module';
     BrowserModule,
     RoutingModule,
     BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

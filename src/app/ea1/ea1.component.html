@@ -1,8 +1,15 @@
-<div>
-  <img #infiniteEarthLoop src="./assets/earth.png">
-  <span>{{angle}}</span>
-</div>
-<div>
-  <button (click)="pause()">Pause</button>
-  <button (click)="play()">Play</button>
+<div fxFlex fxLayout="column">
+  <div>
+    <img #infiniteEarthLoop src="./assets/earth.png">
+    <span>{{angle}}</span>
+  </div>
+  <div>
+    <button mat-raised-button (click)="pause()">Pause</button>
+    <button mat-raised-button (click)="play()">Play</button>
+  </div>
+  <div>
+    <h3>Quellen</h3>
+    <div>EA1: </div>
+  </div>
+
 </div>
