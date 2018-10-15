@@ -1,11 +1,28 @@
-<div class="main">
-  <h1>{{title}}</h1>
-  <nav>
-    <a routerLink="/ea1">EA1</a>
-    <a routerLink="/ea1">EA2</a>
-  </nav>
-  <router-outlet></router-outlet>
-  <div>
-    Quellen
+<div class="flex-children" fxFlex fxLayout="row">
+  <mat-toolbar color="primary">
+    {{title}}
+  </mat-toolbar>
+
+  <div class="main">
+
+    <nav>
+      <button mat-raised-button color="primary" routerLink="/ea1">EA1</button>
+      <button mat-raised-button color="primary" routerLink="/ea2">EA2</button>
+    </nav>
+
+    <mat-card>
+      <mat-card-content>
+        <router-outlet></router-outlet>
+      </mat-card-content>
+    </mat-card>
+
+    <div>
+      <h3>Quellen</h3>
+      <div>EA1: </div>
+      <div>Berlin 2018 - Robert Neujahr - Beuth Hochschule für Technik Berlin</div>
+    </div>
+
   </div>
+
+
 </div>

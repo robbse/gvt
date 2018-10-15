@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'Graphical Visualisation Technologies';
+  title = 'Graphical Visualisation Technologies - Medieninformatik Online Master';
 
 }
