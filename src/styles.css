@@ -11,19 +11,3 @@ body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
 }
-
-.flex-children {
-  >* {
-    flex: 1;
-    box-sizing: border-box;
-    margin: 0px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  router-outlet {
-    display: none;
-  }
-}

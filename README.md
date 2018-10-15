@@ -1,4 +1,4 @@
-# Ea1App
+# Graphical Visualisation Technologies - Medieninformatik Online Master
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.4.
 
