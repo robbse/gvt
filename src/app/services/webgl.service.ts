@@ -21,8 +21,8 @@ export class WebglService {
     );
 
     this.camera = new THREE.PerspectiveCamera(23, 1.77, 10, 3000);
-    this.camera.position.set(700, 50, 1900);
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.camera.position.set(700, 0, 1900);
+    this.camera.lookAt(new THREE.Vector3(0, 200, 0));
 
     const ambient = new THREE.AmbientLight(0x5E5E5E);
     this.scene.add(ambient);
@@ -37,17 +37,23 @@ export class WebglService {
   drawLine(): THREE.Line {
 
     const geometry = new THREE.Geometry();
-    geometry.vertices.push(new THREE.Vector3(-200, 0, 200));
-    geometry.vertices.push(new THREE.Vector3(0, 200, 200));
-    geometry.vertices.push(new THREE.Vector3(200, 0, 200));
+
+    for (let i = 1; i < 30; i++) {
+      geometry.vertices.push(
+        new THREE.Vector3(-500 * Math.random(), 0, 0),
+        new THREE.Vector3(0, 500 * Math.random(), 0),
+        new THREE.Vector3(500 * Math.random(), 0, 0)
+      );
+    }
 
     const material = new THREE.LineBasicMaterial({
-      color: 0xEEEE00,
-      linewidth: 10
+      color: 0xffffff
     });
-    const line = new THREE.Line(geometry, material);
+
+    const line = new THREE.LineLoop(geometry, material);
 
     this.scene.add(line);
+
     this.webGlRenderer.render(this.scene, this.camera);
 
     return line;
