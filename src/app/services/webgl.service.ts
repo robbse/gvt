@@ -1,6 +1,7 @@
 import { Injectable, ElementRef, Renderer2 } from '@angular/core';
 
 import * as THREE from 'three';
+import { Tree } from '@angular/router/src/utils/tree';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +10,7 @@ export class WebglService {
   private camera: THREE.Camera;
   private scene = new THREE.Scene();
   private webGlRenderer = new THREE.WebGLRenderer();
+  private fontLoader = new THREE.FontLoader();
 
   init(hostElementRef: ElementRef, ngRenderer: Renderer2): void {
     const hostElement = hostElementRef.nativeElement;
@@ -21,8 +23,8 @@ export class WebglService {
     );
 
     this.camera = new THREE.PerspectiveCamera(23, 1.77, 10, 3000);
-    this.camera.position.set(700, 0, 1900);
-    this.camera.lookAt(new THREE.Vector3(0, 200, 0));
+    this.camera.position.set(0, 0, 2500);
+    this.camera.lookAt(new THREE.Vector3(0, 10, 0));
 
     const ambient = new THREE.AmbientLight(0x5E5E5E);
     this.scene.add(ambient);
@@ -31,6 +33,39 @@ export class WebglService {
     this.scene.add(light);
 
     this.webGlRenderer.render(this.scene, this.camera);
+
+  }
+
+  drawLineFromFont(): THREE.Line {
+
+    this.fontLoader.load('assets/Baloo_Bhaijaan_Regular.json', (font) => {
+
+      const geometry = new THREE.TextGeometry('Hello World!', {
+        font: font,
+        size: 200,
+        height: 15,
+        curveSegments: 10,
+        bevelEnabled: true,
+        bevelThickness: 1,
+        bevelSize: 5,
+        bevelSegments: 5
+      });
+
+      geometry.center();
+
+      const material = new THREE.LineBasicMaterial({
+        color: 0xfc913a
+      });
+
+      const line = new THREE.Line(geometry, material);
+
+      this.scene.add(line);
+
+      this.webGlRenderer.render(this.scene, this.camera);
+
+      return line;
+
+    });
 
   }
 
