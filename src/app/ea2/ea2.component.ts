@@ -20,6 +20,8 @@ export class Ea2Component implements AfterViewInit {
     this.webglService.init(this.container, this.renderer2);
     this.webglService.drawLineFromFont();
     this.webglService.drawLine();
+
+    console.log('App works, yeah!');
   }
 
 }

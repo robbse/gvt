@@ -1,7 +1,6 @@
 import { Injectable, ElementRef, Renderer2 } from '@angular/core';
 
 import * as THREE from 'three';
-import { Tree } from '@angular/router/src/utils/tree';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +32,8 @@ export class WebglService {
     this.scene.add(light);
 
     this.webGlRenderer.render(this.scene, this.camera);
+
+    console.log('webglService init');
 
   }
 
