@@ -3,7 +3,9 @@ import {
   MatButtonModule,
   MatCheckboxModule,
   MatToolbarModule,
-  MatCardModule
+  MatCardModule,
+  MatProgressBarModule,
+  MatProgressSpinnerModule
 } from '@angular/material';
 
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -14,14 +16,18 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     MatCheckboxModule,
     MatToolbarModule,
     MatCardModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     MatButtonModule,
     MatCheckboxModule,
     MatToolbarModule,
     MatCardModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule
   ],
 })
 export class MaterialModule { }

@@ -3,12 +3,17 @@
     <span>{{title}}</span>
   </mat-toolbar>
 
-  <div class="main">
+  <div flFlexFill fxLayout="column" fxLayoutAlign="center center">
+    <mat-spinner class="spinner" *ngIf="isLoading"></mat-spinner>
+  </div>
+
+  <div class="main" *ngIf="!isLoading">
 
     <nav>
       <button mat-raised-button color="primary" routerLink="/ea1">EA1</button>
       <button mat-raised-button color="primary" routerLink="/ea2">EA2</button>
     </nav>
+
 
     <mat-card>
       <mat-card-content>
