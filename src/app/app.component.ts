@@ -12,8 +12,7 @@ import { animate, trigger, transition, style } from '@angular/animations';
         animate('.2s', style({ opacity: 1 }))
       ])
     ])
-  ],
-  host: { '[@fadeInAnimation]': '' }
+  ]
 })
 export class AppComponent implements AfterViewInit, OnInit, Host {
 
