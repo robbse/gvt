@@ -61,13 +61,13 @@ function drawScene(gl, prog) {
   // Positions.
   var vertices = new Float32Array([
     0, 0,
-    2, 0,
-    2, 2,
-    3, 2,
-    3, 0,
+    2, -1,
+    2.1, 2,
+    2.9, 2,
+    3, -1,
     5, 0,
     5, 5,
-    2.5, 7,
+    2.5, 4,
     0, 5
   ]);
 
