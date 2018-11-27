@@ -21,7 +21,7 @@ var app = (function () {
     fovy: 60.0 * Math.PI / 180,
     // Camera near plane dimensions:
     // value for left right top bottom in projection.
-    lrtb: 2.0,
+    lrtb: 1.0,
     // View matrix.
     vMatrix: mat4.create(),
     // Projection matrix.
@@ -101,7 +101,7 @@ var app = (function () {
 
   /**
    * Create and init shader from source.
-   * 
+   *
    * @parameter shaderType: openGL shader type.
    * @parameter SourceTagId: Id of HTML Tag with shader source.
    * @returns shader object.
@@ -133,7 +133,7 @@ var app = (function () {
 
   /**
    * Create model object, fill it and push it in models array.
-   * 
+   *
    * @parameter geometryname: string with name of geometry.
    * @parameter fillstyle: wireframe, fill, fillwireframe.
    */
@@ -149,7 +149,7 @@ var app = (function () {
 
   /**
    * Init data and buffers for model object.
-   * 
+   *
    * @parameter model: a model object to augment with data.
    * @parameter geometryname: string with name of geometry.
    */
@@ -198,6 +198,32 @@ var app = (function () {
     var deltaRotate = Math.PI / 36;
     var deltaTranslate = 0.05;
 
+    var index = 0;
+    var rotateUp = [
+      1, 4,
+      2, 3,
+      3, 2,
+      4, 1,
+      5, 0,
+      4, -1,
+      3, -2,
+      2, -3,
+      1, -4,
+      0, -5,
+      -1, -4,
+      -2, -3,
+      -3, -2,
+      -4, -1,
+      -5, 0,
+      -4, 1,
+      -3, 2,
+      -2, 3,
+      -1, 4,
+      0, 5
+    ];
+
+    calculateCameraOrbit();
+
     window.onkeydown = function (evt) {
       var key = evt.which ? evt.which : evt.keyCode;
       var c = String.fromCharCode(key);
@@ -211,16 +237,43 @@ var app = (function () {
         case ('A'):
           // rotate left
           camera.zAngle += deltaRotate;
+          calculateCameraOrbit();
           break;
         case ('D'):
           // rotate right
           camera.zAngle -= deltaRotate;
+          calculateCameraOrbit();
           break;
         case ('W'):
           // rotate up
-          camera.eye[1] += 1 * deltaTranslate;
-          camera.eye[2] += -1 * deltaTranslate;
-          camera.up[1] += -0.1;
+          camera.eye[1] = rotateUp[index];
+          camera.eye[2] = rotateUp[index + 1];
+          switch (index) {
+            case 8:
+              camera.up[2] = -1;
+              break;
+            case 14:
+              camera.up[1] = -1;
+              break;
+            case 24:
+              camera.up[2] = 1;
+              break;
+            case 34:
+              camera.up[1] = 1;
+              break;
+            case 38:
+              camera.up[2] = 0;
+              break;
+            default:
+              break
+          }
+          console.log(
+            "index: " + index,
+            " eye Y: " + camera.eye[1] +
+            " eye Z: " + camera.eye[2] +
+            " up Y: " + camera.up[1] +
+            " up Z: " + camera.up[2]);
+          index = index < 38 ? index + 2 : 0;
           break;
         case ('O'):
           camera.projectionType = "ortho";
@@ -240,7 +293,6 @@ var app = (function () {
         case ('H'):
           // Move camera up and down.
           camera.eye[1] += sign * deltaTranslate;
-          camera.eye[2] += -1 * deltaTranslate;
           break;
         case ('D'):
           // Camera distance to center.
@@ -272,7 +324,7 @@ var app = (function () {
 
     // mat4.identity(camera.vMatrix);
     // mat4.rotate(camera.vMatrix, camera.vMatrix, Math.PI / 4, [1, 0, 0]);
-    calculateCameraOrbit();
+    // calculateCameraOrbit();
 
     // Set view matrix depending on camera.
     mat4.lookAt(camera.vMatrix, camera.eye, camera.center, camera.up);
