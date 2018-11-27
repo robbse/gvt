@@ -63,7 +63,7 @@ var app = (function () {
    * be in render function.
    */
   function initPipline() {
-    gl.clearColor(.95, .95, .95, 1);
+    gl.clearColor(0, 0, 0, 0);
 
     // Backface culling.
     gl.frontFace(gl.CCW);
@@ -128,6 +128,7 @@ var app = (function () {
 
   function initModels() {
     createModel("torus", "fillwireframe");
+    createModel("kugel", "fill");
     createModel("plane", "wireframe");
   }
 
@@ -199,7 +200,7 @@ var app = (function () {
     var deltaTranslate = 0.05;
 
     var index = 0;
-    var rotateUp = [
+    var rotate = [
       1, 4,
       2, 3,
       3, 2,
@@ -246,8 +247,8 @@ var app = (function () {
           break;
         case ('W'):
           // rotate up
-          camera.eye[1] = rotateUp[index];
-          camera.eye[2] = rotateUp[index + 1];
+          camera.eye[1] = rotate[index];
+          camera.eye[2] = rotate[index + 1];
           switch (index) {
             case 8:
               camera.up[2] = -1;
@@ -273,7 +274,38 @@ var app = (function () {
             " eye Z: " + camera.eye[2] +
             " up Y: " + camera.up[1] +
             " up Z: " + camera.up[2]);
-          index = index < 38 ? index + 2 : 0;
+          index = index < rotate.length - 2 ? index + 2 : 0;
+          break;
+        case ('S'):
+          // rotate down
+          index = index > 0 ? index - 2 : rotate.length - 2;
+          camera.eye[1] = rotate[index];
+          camera.eye[2] = rotate[index + 1];
+          switch (index) {
+            case 4:
+              camera.up[1] = 1;
+              break;
+            case 16:
+              camera.up[2] = -1;
+              break;
+            case 24:
+              camera.up[1] = -1;
+              break;
+            case 30:
+              camera.up[2] = 1;
+              break;
+            case 38:
+              camera.up[2] = 0;
+              break;
+            default:
+              break
+          }
+          console.log(
+            "index: " + index,
+            " eye Y: " + camera.eye[1] +
+            " eye Z: " + camera.eye[2] +
+            " up Y: " + camera.up[1] +
+            " up Z: " + camera.up[2]);
           break;
         case ('O'):
           camera.projectionType = "ortho";

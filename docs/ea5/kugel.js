@@ -1,8 +1,8 @@
-var plane = (function () {
+var kugel = (function () {
 
   function createVertexData() {
-    var n = 100;
-    var m = 100;
+    var n = 32;
+    var m = 32;
 
     // Positions.
     this.vertices = new Float32Array(3 * (n + 1) * (m + 1));
@@ -16,23 +16,25 @@ var plane = (function () {
     this.indicesTris = new Uint16Array(3 * 2 * n * m);
     var indicesTris = this.indicesTris;
 
-    var du = 40 / n;
-    var dv = 40 / m;
+    var du = 2 * Math.PI / n;
+    var dv = Math.PI / m;
 
+    var r = 0.3;
+    var R = 0.8;
     // Counter for entries in index array.
     var iLines = 0;
     var iTris = 0;
 
     // Loop angle u.
-    for (var i = 0, u = -10; i <= n; i++, u += du) {
+    for (var i = 0, u = 0; i <= n; i++, u += du) {
       // Loop angle v.
-      for (var j = 0, v = -10; j <= m; j++, v += dv) {
+      for (var j = 0, v = 0; j <= m; j++, v += dv) {
 
         var iVertex = i * (m + 1) + j;
 
-        var x = u;
-        var y = 0;
-        var z = v;
+        var x = r * Math.sin(v) * Math.cos(u);
+        var z = r * Math.sin(v) * Math.sin(u);
+        var y = r * Math.cos(v);
 
         // Set vertex positions.
         vertices[iVertex * 3] = x;
@@ -40,9 +42,12 @@ var plane = (function () {
         vertices[iVertex * 3 + 2] = z;
 
         // Calc and set normals.
-        normals[iVertex * 3] = 0;
-        normals[iVertex * 3 + 1] = 1;
-        normals[iVertex * 3 + 2] = 0;
+        var nx = Math.cos(u) * Math.cos(v);
+        var ny = Math.cos(u) * Math.sin(v);
+        var nz = Math.sin(u);
+        normals[iVertex * 3] = nx;
+        normals[iVertex * 3 + 1] = ny;
+        normals[iVertex * 3 + 2] = nz;
 
         // if(i>14){
         // continue;
@@ -73,18 +78,10 @@ var plane = (function () {
         }
       }
     }
-
-
   }
-
-
 
   return {
-
     createVertexData: createVertexData
-
   }
-
-
 
 }());

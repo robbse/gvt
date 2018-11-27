@@ -7,6 +7,7 @@
 
   <script src="../ext/gl-matrix.js"></script>
   <script src="torus.js"></script>
+  <script src="kugel.js"></script>
   <script src="plane.js"></script>
   <script src="main.js"></script>
 
@@ -39,7 +40,17 @@
 </head>
 
 <body onload="app.start()">
-  <canvas id="canvas" width="600" height="600"></canvas>
+  <canvas id="canvas" width="600" height="500" style="background: url('stars.jpg')"></canvas>
+
+  <div>
+    <h3>Key's</h3>
+    <ul>
+      <li>W - rotate up</li>
+      <li>S - rotate down</li>
+      <li>A - rotate left</li>
+      <li>D - rotate right</li>
+    </ul>
+  </div>
   <div class="footer">Berlin 2018 - Robert Neujahr</div>
 </body>
 
