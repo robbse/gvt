@@ -10,7 +10,7 @@ var app = (function () {
   var models = [];
 
   // Model that is target for user input.
-  var interactiveModel;
+  var interactiveModels = [];
 
   var camera = {
     // Initial position of the camera.
@@ -33,7 +33,7 @@ var app = (function () {
     projectionType: "perspective",
     // Angle to Z-Axis for camera when orbiting the center
     // given in radian.
-    zAngle: 0,
+    zAngle: 0.5,
     // Distance in XZ-Plane from center when orbiting.
     distance: 4,
   };
@@ -139,13 +139,21 @@ var app = (function () {
     createModel("torus", fs, [1, 1, 1, 1], [0, 0, 0], [0, 0, 0], [1, 1, 1]);
     createModel("plane", "wireframe", [1, 1, 1, 1], [0, -.8, 0], [0, 0, 0], [1, 1, 1]);
 
-    createModel("kugel", fs, [0, 1, 1, 1], [1, -.3, -1], [0, 0, 0], [.5, .5, .5]);
-    createModel("kugel", fs, [1, 0, 1, 1], [-1, -.3, -1], [0, 0, 0], [.5, .5, .5]);
-    createModel("kugel", fs, [0, 0, 1, 1], [1, -.3, 1], [0, 0, 0], [.5, .5, .5]);
-    createModel("kugel", fs, [1, 1, 0, 1], [-1, -.3, 1], [0, 0, 0], [.5, .5, .5]);
+    //green
+    createModel("kugel", fs, [0, 1, 1, 1], [0, .3, -1], [0, 0, 0], [.5, .5, .5]);
+    // pink
+    createModel("kugel", fs, [1, 0, 1, 1], [0, 1.6, -1], [0, 0, 0], [.5, .5, .5]);
+    // blue
+    createModel("kugel", fs, [0, 0, 1, 1], [0, 1.6, 1], [0, 0, 0], [.5, .5, .5]);
+    // yellow 
+    createModel("kugel", fs, [1, 1, 0, 1], [0, .3, 1], [0, 0, 0], [.5, .5, .5]);
 
     // Select one model that can be manipulated interactively by user.
-    interactiveModel = models[0];
+    interactiveModels.push(models[0]);
+    interactiveModels.push(models[2]);
+    interactiveModels.push(models[3]);
+    interactiveModels.push(models[4]);
+    interactiveModels.push(models[5]);
   }
 
   /**
@@ -231,25 +239,41 @@ var app = (function () {
   function initEventHandler() {
     // Rotation step.
     var deltaRotate = Math.PI / 36;
-    var deltaTranslate = 0.05;
+    var deltaTranslate = 0.5;
+    var r = 0.5;
 
     window.onkeydown = function (evt) {
       var key = evt.which ? evt.which : evt.keyCode;
       var c = String.fromCharCode(key);
-      // console.log(evt);
       // Use shift key to change sign.
       var sign = evt.shiftKey ? -1 : 1;
 
       // Change projection of scene.
       switch (c) {
+        case ('K'):
+          interactiveModels.forEach((element, index) => {
+            if (index > 0) {
+              element.rotate[0] += sign * deltaRotate;
+              // element.translate[0] += sign * (r * Math.cos(deltaRotate)) * Math.cos(deltaRotate);
+              element.translate[1] += sign * (r * Math.cos(deltaRotate) * Math.sin(deltaRotate));
+              element.translate[2] += sign * (r * Math.sin(deltaRotate));
+            }
+          });
+          break;
         case ('X'):
-          interactiveModel.rotate[0] += sign * deltaRotate;
+          interactiveModels.forEach(element => {
+            element.rotate[0] += sign * deltaRotate;
+          });
           break;
         case ('Y'):
-          interactiveModel.rotate[1] += sign * deltaRotate;
+          interactiveModels.forEach(element => {
+            element.rotate[1] += sign * deltaRotate;
+          });
           break;
         case ('Z'):
-          interactiveModel.rotate[2] += sign * deltaRotate;
+          interactiveModels.forEach(element => {
+            element.rotate[2] += sign * deltaRotate;
+          });
           break;
         case ('O'):
           camera.projectionType = "ortho";

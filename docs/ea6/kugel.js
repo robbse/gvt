@@ -19,7 +19,7 @@ var kugel = (function () {
     var du = 2 * Math.PI / n;
     var dv = Math.PI / m;
 
-    var r = 0.5;
+    var r = 0.3;
     var R = 0.8;
     // Counter for entries in index array.
     var iLines = 0;
