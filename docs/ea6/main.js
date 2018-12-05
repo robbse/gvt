@@ -33,7 +33,7 @@ var app = (function () {
     projectionType: "perspective",
     // Angle to Z-Axis for camera when orbiting the center
     // given in radian.
-    zAngle: 0.5,
+    zAngle: 2.0,
     // Distance in XZ-Plane from center when orbiting.
     distance: 4,
   };
@@ -145,7 +145,7 @@ var app = (function () {
     createModel("kugel", fs, [1, 0, 1, 1], [0, 1.6, -1], [0, 0, 0], [.5, .5, .5]);
     // blue
     createModel("kugel", fs, [0, 0, 1, 1], [0, 1.6, 1], [0, 0, 0], [.5, .5, .5]);
-    // yellow 
+    // yellow
     createModel("kugel", fs, [1, 1, 0, 1], [0, .3, 1], [0, 0, 0], [.5, .5, .5]);
 
     // Select one model that can be manipulated interactively by user.
@@ -240,7 +240,6 @@ var app = (function () {
     // Rotation step.
     var deltaRotate = Math.PI / 36;
     var deltaTranslate = 0.5;
-    var r = 0.5;
 
     window.onkeydown = function (evt) {
       var key = evt.which ? evt.which : evt.keyCode;
@@ -254,9 +253,8 @@ var app = (function () {
           interactiveModels.forEach((element, index) => {
             if (index > 0) {
               element.rotate[0] += sign * deltaRotate;
-              // element.translate[0] += sign * (r * Math.cos(deltaRotate)) * Math.cos(deltaRotate);
-              element.translate[1] += sign * (r * Math.cos(deltaRotate) * Math.sin(deltaRotate));
-              element.translate[2] += sign * (r * Math.sin(deltaRotate));
+              element.translate[1] = (element.translate[1] * Math.cos(deltaRotate)) + (element.translate[2] * (-1 * Math.sin(deltaRotate)));
+              element.translate[2] = (element.translate[1] * Math.sin(deltaRotate)) + (element.translate[2] * Math.cos(deltaRotate));
             }
           });
           break;
