@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>GVT - EA8</title>
+  <meta charset="utf-8">
+
+  <script src="../ext/gl-matrix.js"></script>
+  <script src="plane.js"></script>
+  <script src="main.js"></script>
+  <script type="x-shader/x-vertex" id="vertexshader">
+    attribute vec3 aPosition;
+			attribute vec3 aNormal;
+
+			uniform mat4 uPMatrix;
+			uniform mat4 uMVMatrix;
+			uniform mat3 uNMatrix;
+			uniform vec4 uColor;
+
+			varying vec4 vColor;
+
+			void main(){
+				gl_Position = uPMatrix * uMVMatrix * vec4(aPosition, 1.0);
+
+				vec3 tNormal = uNMatrix * aNormal;
+
+        vColor = uColor;
+
+        vColor.r = mod(aPosition.x, 3.) / 2.;
+        vColor.g = mod(aPosition.z+1., 3.) / 2.;
+        vColor.b = mod(aPosition.x+aPosition.z+2., 3.) / 2.;
+			}
+		</script>
+  <script type="x-shader/x-fragment" id="fragmentshader">
+    precision mediump float;
+			varying vec4 vColor;
+
+			void main() {
+				gl_FragColor = vColor;
+			}
+		</script>
+</head>
+<link rel="stylesheet" href="../style.css" type="text/css">
+</head>
+
+<body onload="app.start()">
+  <canvas id="canvas" width="600" height="500" style="background: url('stars.jpg')"></canvas>
+
+  <div class="footer">Berlin 2018 - Robert Neujahr</div>
+</body>
+
+</html>
