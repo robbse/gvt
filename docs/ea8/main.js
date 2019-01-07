@@ -38,6 +38,22 @@ var app = (function () {
     distance: 4,
   };
 
+  // Objekt with light sources characteristics in the scene.
+  var illumination = {
+    ambientLight: [.5, .5, .5],
+    light: [{
+        isOn: true,
+        position: [3., 1., 3.],
+        color: [1., 1., 1.]
+      },
+      {
+        isOn: true,
+        position: [-3., 1., -3.],
+        color: [1., 1., 1.]
+      }
+    ]
+  };
+
   function start() {
     init();
     render();
@@ -61,9 +77,8 @@ var app = (function () {
   }
 
   /**
-   * Init pipeline parmters that will not change again.
-   * If projection or viewport change,
-   * thier setup must be in render function.
+   * Init pipeline parmters that will not change again. If projection or
+   * viewport change, thier setup must be in render function.
    */
   function initPipline() {
     gl.clearColor(.95, .95, .95, 1);
@@ -104,6 +119,7 @@ var app = (function () {
 
   /**
    * Create and init shader from source.
+   * 
    * @parameter shaderType: openGL shader type.
    * @parameter SourceTagId: Id of HTML Tag with shader source.
    * @returns shader object.
@@ -132,12 +148,71 @@ var app = (function () {
 
     // Color.
     prog.colorUniform = gl.getUniformLocation(prog, "uColor");
+
+    // Light.
+    prog.ambientLightUniform = gl.getUniformLocation(prog,
+      "ambientLight");
+    // Array for light sources uniforms.
+    prog.lightUniform = [];
+    // Loop over light sources.
+    for (var j = 0; j < illumination.light.length; j++) {
+      var lightNb = "light[" + j + "]";
+      // Store one object for every light source.
+      var l = {};
+      l.isOn = gl.getUniformLocation(prog, lightNb + ".isOn");
+      l.position = gl.getUniformLocation(prog, lightNb + ".position");
+      l.color = gl.getUniformLocation(prog, lightNb + ".color");
+      prog.lightUniform[j] = l;
+    }
+
+    // Material.
+    prog.materialKaUniform = gl.getUniformLocation(prog, "material.ka");
+    prog.materialKdUniform = gl.getUniformLocation(prog, "material.kd");
+    prog.materialKsUniform = gl.getUniformLocation(prog, "material.ks");
+    prog.materialKeUniform = gl.getUniformLocation(prog, "material.ke");
+  }
+
+  /**
+   * @paramter material : objekt with optional ka, kd, ks, ke.
+   * @retrun material : objekt with ka, kd, ks, ke.
+   */
+  function createPhongMaterial(material) {
+    material = material || {};
+    // Set some default values,
+    // if not defined in material paramter.
+    material.ka = material.ka || [0.3, 0.3, 0.3];
+    material.kd = material.kd || [0.6, 0.6, 0.6];
+    material.ks = material.ks || [0.8, 0.8, 0.8];
+    material.ke = material.ke || 10.;
+
+    return material;
   }
 
   function initModels() {
     // fillstyle
-    var fs = "fillwireframe";
-    createModel("plane", fs, [1, 1, 1, 1], [0, 0, 0], [0, 0, 0], [1, 1, 1]);
+    var fs = "fill";
+
+    // Create some default material.
+    var mDefault = createPhongMaterial();
+    var mRed = createPhongMaterial({
+      kd: [1., 0., 0.]
+    });
+    var mGreen = createPhongMaterial({
+      kd: [0., 1., 0.]
+    });
+    var mBlue = createPhongMaterial({
+      kd: [0., 0., 1.]
+    });
+    var mWhite = createPhongMaterial({
+      ka: [1., 1., 1.],
+      kd: [.5, .5, .5],
+      ks: [0., 0., 0.]
+    });
+
+    createModel("torus", fs, [1, 1, 1, 1], [0, .75, 0], [0, 0, 0, 0], [1, 1, 1, 1], mBlue);
+    createModel("kugel", fs, [1, 1, 1, 1], [-1.25, .5, 0], [0, 0, 0, 0], [.5, .5, .5], mWhite);
+    createModel("kugel", fs, [1, 1, 1, 1], [1.25, .5, 0], [0, 0, 0, 0], [.5, .5, .5], mWhite);
+    createModel("plane", fs, [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], mWhite);
 
     // Select one model that can be manipulated interactively by user.
     interactiveModel = models[0];
@@ -145,15 +220,18 @@ var app = (function () {
 
   /**
    * Create model object, fill it and push it in models array.
+   * 
    * @parameter geometryname: string with name of geometry.
    * @parameter fillstyle: wireframe, fill, fillwireframe.
    */
-  function createModel(geometryname, fillstyle, color, translate, rotate, scale) {
+  function createModel(geometryname, fillstyle, color, translate, rotate,
+    scale, material) {
     var model = {};
     model.fillstyle = fillstyle;
     model.color = color;
     initDataAndBuffers(model, geometryname);
     initTransformations(model, translate, rotate, scale);
+    model.material = material;
 
     models.push(model);
   }
@@ -179,6 +257,7 @@ var app = (function () {
 
   /**
    * Init data and buffers for model object.
+   * 
    * @parameter model: a model object to augment with data.
    * @parameter geometryname: string with name of geometry.
    */
@@ -208,14 +287,16 @@ var app = (function () {
     // Setup lines index buffer object.
     model.iboLines = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.iboLines);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, model.indicesLines, gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, model.indicesLines,
+      gl.STATIC_DRAW);
     model.iboLines.numberOfElements = model.indicesLines.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     // Setup triangle index buffer object.
     model.iboTris = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.iboTris);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, model.indicesTris, gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, model.indicesTris,
+      gl.STATIC_DRAW);
     model.iboTris.numberOfElements = model.indicesTris.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
@@ -223,16 +304,17 @@ var app = (function () {
   function initEventHandler() {
     // Rotation step for models.
     var deltaRotate = Math.PI / 36;
+    var deltaRotateTwo;
     var deltaTranslate = 0.05;
     var deltaScale = 0.05;
+    var r = 3;
 
     window.onkeydown = function (evt) {
       var key = evt.which ? evt.which : evt.keyCode;
       var c = String.fromCharCode(key);
-      //console.log(evt);
+      // console.log(evt);
       // Use shift key to change sign.
       var sign = evt.shiftKey ? -1 : 1;
-
       // Rotate interactiveModel.
       switch (c) {
         case ('X'):
@@ -289,6 +371,15 @@ var app = (function () {
           // Camera near plane dimensions.
           camera.lrtb += sign * 0.1;
           break;
+        case ('K'):
+          deltaRotate -= Math.PI / 36;
+          illumination.light[0].position[0] = 0 - Math.cos(deltaRotate) * r;
+          illumination.light[0].position[2] = 0 - Math.sin(deltaRotate) * r;
+
+          deltaRotateTwo = deltaRotate + Math.PI;
+          illumination.light[1].position[0] = 0 - Math.cos(deltaRotateTwo) * r;
+          illumination.light[1].position[2] = 0 - Math.sin(deltaRotateTwo) * r;
+          break;
       }
       // Render the scene again on any key pressed.
       render();
@@ -309,15 +400,47 @@ var app = (function () {
     // Set view matrix depending on camera.
     mat4.lookAt(camera.vMatrix, camera.eye, camera.center, camera.up);
 
+    // NEW
+    // Set light uniforms.
+    gl.uniform3fv(prog.ambientLightUniform, illumination.ambientLight);
+    // Loop over light sources.
+    for (var j = 0; j < illumination.light.length; j++) {
+      // bool is transferred as integer.
+      gl.uniform1i(prog.lightUniform[j].isOn,
+        illumination.light[j].isOn);
+      // Tranform light postion in eye coordinates.
+      // Copy current light position into a new array.
+      var lightPos = [].concat(illumination.light[j].position);
+      // Add homogenious coordinate for transformation.
+      lightPos.push(1.0);
+      vec4.transformMat4(lightPos, lightPos, camera.vMatrix);
+      // Remove homogenious coordinate.
+      lightPos.pop();
+      gl.uniform3fv(prog.lightUniform[j].position, lightPos);
+      gl.uniform3fv(prog.lightUniform[j].color,
+        illumination.light[j].color);
+    }
+
     // Loop over models.
     for (var i = 0; i < models.length; i++) {
       // Update modelview for model.
       updateTransformations(models[i]);
 
       // Set uniforms for model.
+      //
+      // Transformation matrices.
+      gl.uniformMatrix4fv(prog.mvMatrixUniform, false,
+        models[i].mvMatrix);
+      gl.uniformMatrix3fv(prog.nMatrixUniform, false,
+        models[i].nMatrix);
+      // Color (not used with lights).
       gl.uniform4fv(prog.colorUniform, models[i].color);
-      gl.uniformMatrix4fv(prog.mvMatrixUniform, false, models[i].mvMatrix);
-      gl.uniformMatrix3fv(prog.nMatrixUniform, false, models[i].nMatrix);
+      // NEW
+      // Material.
+      gl.uniform3fv(prog.materialKaUniform, models[i].material.ka);
+      gl.uniform3fv(prog.materialKdUniform, models[i].material.kd);
+      gl.uniform3fv(prog.materialKsUniform, models[i].material.ks);
+      gl.uniform1f(prog.materialKeUniform, models[i].material.ke);
 
       draw(models[i]);
     }
@@ -342,10 +465,12 @@ var app = (function () {
         break;
       case ("frustum"):
         var v = camera.lrtb;
-        mat4.frustum(camera.pMatrix, -v / 2, v / 2, -v / 2, v / 2, 1, 10);
+        mat4.frustum(camera.pMatrix, -v / 2, v / 2, -v / 2, v / 2,
+          1, 10);
         break;
       case ("perspective"):
-        mat4.perspective(camera.pMatrix, camera.fovy, camera.aspect, 1, 10);
+        mat4.perspective(camera.pMatrix, camera.fovy, camera.aspect, 1,
+          10);
         break;
     }
     // Set projection uniform.
@@ -385,7 +510,8 @@ var app = (function () {
   function draw(model) {
     // Setup position VBO.
     gl.bindBuffer(gl.ARRAY_BUFFER, model.vboPos);
-    gl.vertexAttribPointer(prog.positionAttrib, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(prog.positionAttrib, 3, gl.FLOAT,
+      false, 0, 0);
 
     // Setup normal VBO.
     gl.bindBuffer(gl.ARRAY_BUFFER, model.vboNormal);
@@ -396,7 +522,8 @@ var app = (function () {
     if (fill) {
       gl.enableVertexAttribArray(prog.normalAttrib);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.iboTris);
-      gl.drawElements(gl.TRIANGLES, model.iboTris.numberOfElements, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLES, model.iboTris.numberOfElements,
+        gl.UNSIGNED_SHORT, 0);
     }
 
     // Setup rendering lines.
@@ -406,7 +533,8 @@ var app = (function () {
       gl.disableVertexAttribArray(prog.normalAttrib);
       gl.vertexAttrib3f(prog.normalAttrib, 0, 0, 0);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.iboLines);
-      gl.drawElements(gl.LINES, model.iboLines.numberOfElements, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.LINES, model.iboLines.numberOfElements,
+        gl.UNSIGNED_SHORT, 0);
     }
   }
 
