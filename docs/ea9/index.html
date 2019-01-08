@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>GVT - EA9</title>
+  <meta charset="utf-8">
+
+  <script src="../ext/gl-matrix.js"></script>
+  <script src="torus.js"></script>
+  <script src="kugel.js"></script>
+  <script src="plane.js"></script>
+  <script src="main.js"></script>
+  <script type="x-shader/x-vertex" id="vertexshader">
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uPMatrix;
+    uniform mat4 uMVMatrix;
+    uniform mat3 uNMatrix;
+
+    varying vec2 vTextureCoord;
+
+    void main(){
+      // Calculte vertex position in eye coordinates.
+      vec4 tPosition = uMVMatrix * vec4(aPosition, 1.0);
+      // Calculate projektion.
+      gl_Position = uPMatrix * tPosition;
+
+      vec3 tNormal = normalize(uNMatrix * aNormal);
+
+      vTextureCoord = aTextureCoord;
+    }
+  </script>
+  <script type="x-shader/x-fragment" id="fragmentshader">
+    precision mediump float;
+
+    uniform sampler2D uTexture;
+
+    varying vec2 vTextureCoord;
+
+    void main() {
+      gl_FragColor = texture2D(uTexture, vTextureCoord);
+    }
+  </script>
+</head>
+<link rel="stylesheet" href="../style.css" type="text/css">
+</head>
+
+<body onload="app.start()">
+  <canvas id="canvas" width="600" height="500"></canvas>
+  <div>
+    <h2>Interaktion:</h2>
+    <ul>
+      <li>Taste K zum rotieren der Lichtquellen</li>
+    </ul>
+  </div>
+
+  <div class="footer">Berlin 2019 - Robert Neujahr</div>
+</body>
+
+</html>
