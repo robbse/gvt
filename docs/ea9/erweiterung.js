@@ -254,10 +254,8 @@ var app = (function () {
       ks: [0, 0, 0]
     });
 
-    // createModel("torus", fs, [1, 1, 1, 1], [0, .75, 0], [0, 0, 0, 0], [1, 1, 1, 1], mBlue);
     createModel("torus", fs, [1, 1, 1, 1], [0, 0, 0], [-Math.PI / 2.0, 0, Math.PI / 2.0], [2, 2, 2], mWhite, "textures/rescue-ring.png");
-
-    createModel("plane", fs, [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], mGrey, "textures/water.jpg");
+    createModel("torus", fs, [1, 1, 1, 1], [0, 0, 0], [-Math.PI / 1.0, 0, Math.PI / 1.0], [2, 2, 2], mWhite, "textures/rescue-ring.png");
 
     // Select one model that can be manipulated interactively by user.
     interactiveModel = models[0];

@@ -3,11 +3,13 @@
 <html lang="en">
 
 <head>
-  <title>GVT - EA9</title>
+  <title>GVT - EA9 - Erweiterung</title>
   <meta charset="utf-8">
   <script src="../ext/gl-matrix.js"></script>
   <script src="kugel.js"></script>
-  <script src="earth.js"></script>
+  <script src="torus.js"></script>
+  <script src="plane.js"></script>
+  <script src="erweiterung.js"></script>
   <script type="x-shader/x-vertex" id="vertexshader">
     attribute vec3 aPosition;
 			attribute vec3 aNormal;
@@ -106,15 +108,25 @@
 
 				vec3 vNormal = normalize(vNormal);
 
-				vec4 tColor = texture2D(uTexture, vTextureCoord);
-        vec4 lighting = vec4( phong(vPosition.xyz, vNormal, v), 1.0);
-        gl_FragColor = tColor * lighting;
+				float vStrips = mod(floor(vTextureCoord.s * 42.), 2.);
+				float hStrips = mod(floor(vTextureCoord.t * 42.), 2.);					
+    			float caros = vStrips * hStrips + (1.-vStrips) * (1.-hStrips);
+				vec4 tColor = vec4(.9, .9 - caros, .3 - caros, 1);
+				
+        		vec4 lighting = vec4( phong(vPosition.xyz, vNormal, v), 1.0);
+        		gl_FragColor = tColor * lighting;
 			}
 		</script>
+
+  <link rel="stylesheet" href="../style.css" type="text/css">
 </head>
 
 <body onload="app.start()">
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <canvas id="canvas" width="600" height="500"></canvas>
+  <div>
+    <a href="./index.html">Zurück zu EA9</a>
+  </div>
+  <div class="footer">Berlin 2019 - Robert Neujahr</div>
 </body>
 
 </html>

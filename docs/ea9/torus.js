@@ -16,6 +16,9 @@ var torus = (function () {
     this.indicesTris = new Uint16Array(3 * 2 * n * m);
     var indicesTris = this.indicesTris;
 
+    this.textureCoord = new Float32Array(2 * (n + 1) * (m + 1));
+    var textureCoord = this.textureCoord;
+
     var du = 2 * Math.PI / n;
     var dv = 2 * Math.PI / m;
     var r = 0.1;
@@ -39,6 +42,9 @@ var torus = (function () {
         vertices[iVertex * 3] = x;
         vertices[iVertex * 3 + 1] = y;
         vertices[iVertex * 3 + 2] = z;
+
+        textureCoord[iVertex * 2] = u / (2 * Math.PI); // s
+        textureCoord[iVertex * 2 + 1] = v / Math.PI; // t
 
         // Calc and set normals.
         var nx = Math.cos(u) * Math.cos(v);
