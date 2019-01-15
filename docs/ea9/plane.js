@@ -49,8 +49,10 @@ var plane = ( function() {
 				normals[iVertex * 3 + 2] = 0;
 
 				// Set texture coordinate.
-				textureCoord[iVertex * 2] = (u+10)/20; // s
-				textureCoord[iVertex * 2 + 1] = (v+10)/20; // t
+				// textureCoord[iVertex * 2] = (u+10)/20; // s
+        // textureCoord[iVertex * 2 + 1] = (v+10)/20; // t
+        textureCoord[iVertex * 2] = u;
+        textureCoord[iVertex * 2 + 1] = v;
 
 				// Set index.
 				// Line on beam.
