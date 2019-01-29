@@ -52,6 +52,7 @@ var app = (function () {
   function start() {
     // NEW DAT
     Data.init();
+    Data.readFileFromServer('data/HabermansSurvivalDataSet/haberman.data');
     init();
     render();
   }
@@ -242,9 +243,38 @@ var app = (function () {
   // Create models from data.
   // Take first 3 fields as position.
   function initModelsFromData(data, stats) {
-    // .. todo
-  }
+    var fs = "fill";
 
+    var mRed = createPhongMaterial({
+      kd: [1., 0., 0.]
+    });
+
+    var mGreen = createPhongMaterial({
+      kd: [0., 1., 0.]
+    });
+
+    // Clear models for new data.
+    models = [];
+
+    for (var i = 0; i < data.length; i++) {
+
+      var d = data[i];
+
+      // Set color according to classification.
+      var material = mGreen;
+
+      if (d[3] === 2) {
+        material = mRed;
+      }
+
+      var pos = [d[0], d[1], d[2]];
+      // Scale model according to data range and data set size ..
+      var scale = stats.maxRange / 100;
+      var scale3f = [scale, scale, scale];
+      createModel("sphere", fs, [1, 1, 1, 1], pos, [0, 0, 0],
+        scale3f, material);
+    }
+  }
 
   /**
    * Create model object, fill it and push it in models array.

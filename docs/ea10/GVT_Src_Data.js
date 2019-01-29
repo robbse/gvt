@@ -32,11 +32,11 @@ var Data = (function () {
         //console.log(textCSV);
         var results = Papa.parse(textCSV, {delimiter:',', dynamicTyping: true, skipEmptyLines: true});
         //console.log(results.data);
-        //console.log(results);
+        console.log(results);
 
-        textJSON =  JSON.stringify(results.data);
-        console.log(textJSON);
-        var dataFromJSON = JSON.parse(textJSON);
+        // textJSON =  JSON.stringify(results.data);
+        // console.log(textJSON);
+        // var dataFromJSON = JSON.parse(textJSON);
 
         var stats = calcStats(results.data);
         app.dataLoadedCallback(results.data, stats);
