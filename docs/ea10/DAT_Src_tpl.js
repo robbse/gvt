@@ -419,6 +419,7 @@ var app = (function () {
     var deltaRotate = Math.PI / 36;
     var deltaTranslate = 0.05;
     var deltaScale = 0.05;
+    var index = 0;
 
     window.onkeydown = function (evt) {
       var key = evt.which ? evt.which : evt.keyCode;
@@ -523,10 +524,23 @@ var app = (function () {
 
       // NEW DAT
       // Load data.
+
+      var STEP = [
+        '21-17',
+        '24-50',
+        '49-03'
+      ];
+
       switch (c) {
         case ('L'):
           Data.readFileFromClient();
           // No need to render.
+          return;
+        case ('T'):
+          index = index <= STEP.length ? index + 1 : 0;
+
+          Data.readFileFromServer('data/HMP_Dataset/Getup_bed/Accelerometer-2011-03-29-09-' +
+            STEP[index] + '-getup_bed-f1.txt');
           return;
       }
 
