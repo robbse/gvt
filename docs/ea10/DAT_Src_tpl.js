@@ -14,6 +14,16 @@ var app = (function () {
   var interactiveModel;
 
   var camera = {
+    // Function factory for the above translate, rotate functions.
+    init: function () {
+      ["translate", "rotateX", "rotateY", "rotateZ"].forEach(function (f) {
+        camera[f] = function (val) {
+          var M = mat4.create();
+          mat4[f](M, M, val);
+          mat4.multiply(this.vMatrix, M, this.vMatrix);
+        }
+      });
+    },
     // Initial position of the camera.
     // NEW DAT
     eye: vec3.fromValues(0, 0, 0),
@@ -36,7 +46,33 @@ var app = (function () {
     // given in radian.
     zAngle: 0,
     // Distance in XZ-Plane from center when orbiting.
-    distance: 4
+    distance: 4,
+    rotate: [0, 0, 0],
+
+    rotateX: function (angle) {
+      var M = mat4.create();
+      mat4.rotateX(M, M, angle);
+      mat4.multiply(this.vMatrix, M, this.vMatrix);
+    },
+
+    rotateY: function (angle) {
+      var M = mat4.create();
+      mat4.rotateY(M, M, angle);
+      mat4.multiply(this.vMatrix, M, this.vMatrix);
+    },
+
+    rotateZ: function (angle) {
+      var M = mat4.create();
+      mat4.rotateZ(M, M, angle);
+      mat4.multiply(this.vMatrix, M, this.vMatrix);
+    },
+
+    translate: function (vec) {
+      var M = mat4.create();
+      mat4.translate(M, M, vec);
+      mat4.multiply(this.vMatrix, M, this.vMatrix);
+    }
+
   };
 
   // Object with light sources characteristics in the scene.
@@ -52,7 +88,8 @@ var app = (function () {
   function start() {
     // NEW DAT
     Data.init();
-    Data.readFileFromServer('data/HabermansSurvivalDataSet/haberman.data');
+    // Data.readFileFromServer('data/HabermansSurvivalDataSet/haberman.data');
+    Data.readFileFromServer('data/HMP_Dataset/Getup_bed/Accelerometer-2011-03-29-09-21-17-getup_bed-f1.txt');
     init();
     render();
   }
@@ -64,6 +101,7 @@ var app = (function () {
     initModels();
     initEventHandler();
     initPipline();
+    camera.init();
   }
 
   function initWebGL() {
@@ -263,9 +301,17 @@ var app = (function () {
       // Set color according to classification.
       var material = mGreen;
 
-      if (d[3] === 2) {
-        material = mRed;
-      }
+      // if (d[3] === 2) {
+      //   material = mRed;
+      // }
+
+      // if (d[1] < 60 || d[1] > 63) {
+      //   continue;
+      // }
+
+      // if (d[3] === 1) {
+      //   continue;
+      // }
 
       var pos = [d[0], d[1], d[2]];
       // Scale model according to data range and data set size ..
@@ -381,16 +427,51 @@ var app = (function () {
       // Use shift key to change sign.
       var sign = evt.shiftKey ? -1 : 1;
 
+      // Camera translation.
+      var translateStep = camera.lrtb * sign * deltaTranslate;
+      switch (c) {
+        // Move the camera position.
+        case ('W'):
+          camera.translate([0, -translateStep, 0]);
+          break;
+        case ('A'):
+          camera.translate([translateStep, 0, 0]);
+          break;
+        case ('S'):
+          camera.translate([0, translateStep, 0]);
+          break;
+        case ('D'):
+          camera.translate([-translateStep, 0, 0]);
+          break;
+        case (' '):
+          camera.translate([0, 0, translateStep]);
+          break;
+      }
+
+      // Rotate.
+      var rotateStep = deltaRotate * sign;
       // Rotate interactiveModel.
       switch (c) {
         case ('X'):
-          interactiveModel.rotate[0] += sign * deltaRotate;
+          if (!interactiveModel)
+            // camera.rotate[0] += rotateStep;
+            camera.rotateX(rotateStep);
+          else
+            interactiveModel.rotate[0] += rotateStep;
           break;
         case ('Y'):
-          interactiveModel.rotate[1] += sign * deltaRotate;
+          if (!interactiveModel)
+            // camera.rotate[1] += rotateStep;
+            camera.rotateY(rotateStep);
+          else
+            interactiveModel.rotate[1] += rotateStep;
           break;
         case ('Z'):
-          interactiveModel.rotate[2] += sign * deltaRotate;
+          if (!interactiveModel)
+            // camera.rotate[2] += rotateStep;
+            camera.rotateZ(rotateStep);
+          else
+            interactiveModel.rotate[2] += rotateStep;
           break;
       }
       // Scale/squeese interactiveModel.
@@ -436,7 +517,7 @@ var app = (function () {
           break;
         case ('B'):
           // Camera near plane dimensions.
-          camera.lrtb += sign * 0.1;
+          camera.lrtb *= 1.0 - sign * 0.1
           break;
       }
 
@@ -470,7 +551,7 @@ var app = (function () {
     // NEW DAT
     //mat4.lookAt(camera.vMatrix, camera.eye, camera.center, camera.up);
     // NEW DAT
-    calculateCamera();
+    // calculateCamera();
 
     // Set light uniforms.
     gl.uniform3fv(prog.ambientLightUniform, illumination.ambientLight);
@@ -531,6 +612,11 @@ var app = (function () {
     var vMatrix = camera.vMatrix;
     mat4.identity(vMatrix);
 
+    // Rotate.
+    mat4.rotateX(vMatrix, vMatrix, camera.rotate[0]);
+    mat4.rotateY(vMatrix, vMatrix, camera.rotate[1]);
+    mat4.rotateZ(vMatrix, vMatrix, camera.rotate[2]);
+
     // Translate.
     var trans = vec3.clone(camera.eye);
     vec3.scale(trans, trans, -1.0);
@@ -555,6 +641,7 @@ var app = (function () {
   function initCameraFromData(stats) {
 
     camera.projectionType = "ortho";
+    // camera.projectionType = "perspective";
 
     // Set Frustum according to data range.
     // Use same extend in all dimensions to keep data ratio.
@@ -564,6 +651,14 @@ var app = (function () {
     // Locate the camera (eye) in the center of the data.
     // Data points inside the ortho frustum are all rendered.
     vec3.copy(camera.eye, stats.mean);
+
+    var vMatrix = camera.vMatrix;
+    mat4.identity(vMatrix);
+
+    // Translate.
+    var trans = vec3.clone(camera.eye);
+    vec3.scale(trans, trans, -1.0);
+    mat4.translate(vMatrix, vMatrix, trans);
   }
 
   function setProjection() {
@@ -580,7 +675,7 @@ var app = (function () {
         mat4.frustum(camera.pMatrix, -v / 2, v / 2, -v / 2, v / 2, 1, 10);
         break;
       case ("perspective"):
-        mat4.perspective(camera.pMatrix, camera.fovy, camera.aspect, 1, 10);
+        mat4.perspective(camera.pMatrix, camera.fovy, camera.aspect, 1, camera.lrtb);
         break;
     }
     // Set projection uniform.
